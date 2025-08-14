@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Visualizador de Algoritmos de Ordenação</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .bar {
+            transition: height 300ms ease-in-out, background-color 300ms ease-in-out;
+        }
+        select {
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+            background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23007CB2%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E');
+            background-repeat: no-repeat;
+            background-position: right 1rem center;
+            background-size: .65em auto;
+            padding-right: 2.5rem;
+        }
+    </style>
+</head>
+<body class="bg-slate-900 text-white flex flex-col items-center min-h-screen p-4">
+
+    <div class="w-full max-w-5xl text-center">
+        <h1 class="text-4xl font-bold text-cyan-400 mb-2">Visualizador de Algoritmos de Ordenação</h1>
+        <p class="text-slate-400 mb-6">Escolha um algoritmo e observe-o em ação.</p>
+        
+        <div class="flex flex-col md:flex-row items-center justify-center gap-4 mb-6">
+            <select id="algorithmSelect" class="bg-slate-700 border border-slate-600 text-white font-bold py-3 px-4 rounded-lg shadow-lg focus:outline-none focus:ring-2 focus:ring-cyan-500">
+                <option value="quickSort">Quick Sort</option>
+                <option value="bubbleSort">Bubble Sort</option>
+                <option value="selectionSort">Selection Sort</option>
+                <option value="insertionSort">Insertion Sort</option>
+                <option value="mergeSort">Merge Sort</option>
+                <option value="shellSort">Shell Sort</option>
+            </select>
+            <button id="sortButton" class="bg-cyan-500 hover:bg-cyan-600 text-white font-bold py-3 px-6 rounded-lg shadow-lg transition-transform transform hover:scale-105 disabled:bg-slate-600 disabled:cursor-not-allowed disabled:transform-none">
+                Gerar Novo Array e Ordenar
+            </button>
+        </div>
+
+        <div id="algorithmInfo" class="w-full max-w-2xl mx-auto mb-6 p-4 bg-slate-800 rounded-lg border border-slate-700 min-h-[100px]">
+            <h2 id="algoName" class="text-2xl font-bold text-cyan-400"></h2>
+            <p id="algoDesc" class="text-slate-300 mt-2"></p>
+        </div>
+
+        <div id="container" class="w-full h-96 bg-slate-800 rounded-lg shadow-inner flex justify-center items-end p-2 border border-slate-700">
+            <!-- As barras serão geradas pelo JavaScript aqui -->
+        </div>
+    </div>
+
+    <script>
+        // --- ELEMENTOS DO DOM ---
+        const container = document.getElementById('container');
+        const sortButton = document.getElementById('sortButton');
+        const algorithmSelect = document.getElementById('algorithmSelect');
+        const algoNameEl = document.getElementById('algoName');
+        const algoDescEl = document.getElementById('algoDesc');
+
+        // --- CONFIGURAÇÕES GLOBAIS ---
+        let array = [];
+        const ARRAY_SIZE = 60;
+        const ANIMATION_SPEED_MS = 30;
+
+        // --- DICIONÁRIO DE ALGORITMOS ---
+        const algorithms = {
+            bubbleSort: {
+                name: "Bubble Sort",
+                description: "Compara pares de elementos adjacentes e os troca se estiverem na ordem errada. O processo se repete até que o array esteja ordenado. É simples, mas ineficiente para grandes conjuntos de dados.",
+                function: bubbleSort
+            },
+            selectionSort: {
+                name: "Selection Sort",
+                description: "Divide o array em uma parte ordenada e outra não ordenada. Repetidamente, encontra o menor elemento da parte não ordenada e o move para o final da parte ordenada.",
+                function: selectionSort
+            },
+            insertionSort: {
+                name: "Insertion Sort",
+                description: "Constrói o array ordenado final um item de cada vez. É muito mais eficiente que o Bubble Sort e o Selection Sort para pequenos conjuntos de dados.",
+                function: insertionSort
+            },
+            mergeSort: {
+                name: "Merge Sort",
+                description: "Um algoritmo de 'dividir para conquistar'. Divide o array em duas metades, ordena cada metade recursivamente e, em seguida, mescla as duas metades ordenadas.",
+                function: mergeSort
+            },
+            shellSort: {
+                name: "Shell Sort",
+                description: "Uma melhoria do Insertion Sort. Permite a troca de itens distantes. O algoritmo ordena elementos em um intervalo específico, e o intervalo é gradualmente reduzido até 1.",
+                function: shellSort
+            },
+            quickSort: {
+                name: "Quick Sort",
+                description: "Também um algoritmo de 'dividir para conquistar'. Escolhe um elemento como pivô e particiona o array em torno do pivô. É geralmente muito rápido na prática.",
+                function: quickSort
+            }
+        };
+
+        // --- FUNÇÕES AUXILIARES ---
+        const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+        const swap = (i, j) => { [array[i], array[j]] = [array[j], array[i]]; };
+
+        // --- FUNÇÕES DE RENDERIZAÇÃO E UI ---
+        function generateNewArray() {
+            array = [];
+            for (let i = 0; i < ARRAY_SIZE; i++) {
+                array.push(Math.floor(Math.random() * 95) + 5);
+            }
+            drawArray();
+        }
+
+        function drawArray(states = []) {
+            container.innerHTML = '';
+            const barWidth = 100 / ARRAY_SIZE;
+            for (let i = 0; i < array.length; i++) {
+                const bar = document.createElement('div');
+                bar.style.height = `${array[i]}%`;
+                bar.style.width = `${barWidth}%`;
+                bar.classList.add('bar');
+
+                let colorClass = 'bg-cyan-400'; // Padrão
+                if (states[i] === 1) colorClass = 'bg-red-500'; // Pivô / Posição sendo ordenada
+                else if (states[i] === 2) colorClass = 'bg-yellow-400'; // Comparação
+                else if (states[i] === 3) colorClass = 'bg-green-500'; // Ordenado
+                
+                bar.classList.add(colorClass);
+                container.appendChild(bar);
+            }
+        }
+
+        function updateAlgorithmInfo() {
+            const selectedAlgo = algorithmSelect.value;
+            algoNameEl.textContent = algorithms[selectedAlgo].name;
+            algoDescEl.textContent = algorithms[selectedAlgo].description;
+        }
+
+        async function finishAnimation() {
+            for (let i = 0; i < array.length; i++) {
+                const states = new Array(array.length).fill(0);
+                for (let k = 0; k <= i; k++) states[k] = 3;
+                drawArray(states);
+                await sleep(ANIMATION_SPEED_MS / 2);
+            }
+        }
+
+        // --- ALGORITMOS DE ORDENAÇÃO ---
+
+        async function bubbleSort() {
+            for (let i = 0; i < array.length - 1; i++) {
+                for (let j = 0; j < array.length - i - 1; j++) {
+                    if (array[j] > array[j + 1]) {
+                        swap(j, j + 1);
+                    }
+                    const states = new Array(array.length).fill(0);
+                    states[j] = 2; states[j + 1] = 2;
+                    drawArray(states);
+                    await sleep(ANIMATION_SPEED_MS);
+                }
+            }
+        }
+
+        async function selectionSort() {
+            for (let i = 0; i < array.length - 1; i++) {
+                let minIdx = i;
+                for (let j = i + 1; j < array.length; j++) {
+                    if (array[j] < array[minIdx]) {
+                        minIdx = j;
+                    }
+                    const states = new Array(array.length).fill(0);
+                    states[i] = 1; states[minIdx] = 2; states[j] = 2;
+                    drawArray(states);
+                    await sleep(ANIMATION_SPEED_MS);
+                }
+                swap(i, minIdx);
+            }
+        }
+
+        async function insertionSort() {
+            for (let i = 1; i < array.length; i++) {
+                let key = array[i];
+                let j = i - 1;
+                while (j >= 0 && array[j] > key) {
+                    const states = new Array(array.length).fill(0);
+                    states[i] = 1; states[j] = 2;
+                    drawArray(states);
+                    await sleep(ANIMATION_SPEED_MS);
+                    array[j + 1] = array[j];
+                    j = j - 1;
+                }
+                array[j + 1] = key;
+            }
+        }
+        
+        async function mergeSort() {
+            await mergeSortRecursive(0, array.length - 1);
+        }
+
+        async function mergeSortRecursive(l, r) {
+            if (l >= r) return;
+            const m = l + Math.floor((r - l) / 2);
+            await mergeSortRecursive(l, m);
+            await mergeSortRecursive(m + 1, r);
+            await merge(l, m, r);
+        }
+
+        async function merge(l, m, r) {
+            let n1 = m - l + 1, n2 = r - m;
+            let L = new Array(n1), R = new Array(n2);
+            for (let i = 0; i < n1; i++) L[i] = array[l + i];
+            for (let j = 0; j < n2; j++) R[j] = array[m + 1 + j];
+            let i = 0, j = 0, k = l;
+            while (i < n1 && j < n2) {
+                const states = new Array(array.length).fill(0);
+                states[l+i] = 2; states[m+1+j] = 2;
+                drawArray(states);
+                await sleep(ANIMATION_SPEED_MS);
+                if (L[i] <= R[j]) array[k++] = L[i++];
+                else array[k++] = R[j++];
+            }
+            while (i < n1) array[k++] = L[i++];
+            while (j < n2) array[k++] = R[j++];
+            drawArray();
+        }
+
+        // Shell Sort (substituindo Heap Sort)
+        async function shellSort() {
+            const n = array.length;
+            for (let gap = Math.floor(n / 2); gap > 0; gap = Math.floor(gap / 2)) {
+                for (let i = gap; i < n; i += 1) {
+                    let temp = array[i];
+                    let j;
+                    for (j = i; j >= gap && array[j - gap] > temp; j -= gap) {
+                        const states = new Array(array.length).fill(0);
+                        states[j] = 1;
+                        states[j - gap] = 2;
+                        drawArray(states);
+                        await sleep(ANIMATION_SPEED_MS);
+                        array[j] = array[j - gap];
+                    }
+                    array[j] = temp;
+                    drawArray();
+                    await sleep(ANIMATION_SPEED_MS);
+                }
+            }
+        }
+
+        async function quickSort() {
+            await quickSortRecursive(0, array.length - 1);
+        }
+
+        async function quickSortRecursive(low, high) {
+            if (low < high) {
+                const pi = await partition(low, high);
+                await Promise.all([
+                    quickSortRecursive(low, pi - 1),
+                    quickSortRecursive(pi + 1, high)
+                ]);
+            }
+        }
+
+        async function partition(low, high) {
+            const pivot = array[high];
+            let i = low - 1;
+            const states = new Array(array.length).fill(0);
+            states[high] = 1;
+            for (let j = low; j < high; j++) {
+                states[j] = 2;
+                drawArray(states);
+                await sleep(ANIMATION_SPEED_MS);
+                if (array[j] < pivot) {
+                    i++;
+                    swap(i, j);
+                }
+            }
+            swap(i + 1, high);
+            return i + 1;
+        }
+
+        // --- INICIALIZAÇÃO ---
+        async function startSort() {
+            sortButton.disabled = true;
+            algorithmSelect.disabled = true;
+            
+            generateNewArray();
+            await sleep(500);
+            
+            const selectedAlgo = algorithmSelect.value;
+            await algorithms[selectedAlgo].function();
+            
+            await finishAnimation();
+            
+            sortButton.disabled = false;
+            algorithmSelect.disabled = false;
+        }
+
+        sortButton.addEventListener('click', startSort);
+        algorithmSelect.addEventListener('change', updateAlgorithmInfo);
+        window.onload = () => {
+            generateNewArray();
+            updateAlgorithmInfo();
+        };
+    </script>
+
+</body>
+</html>
