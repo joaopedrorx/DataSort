@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Explorador Interativo do Mergesort</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #fdfdfc;
+            color: #333;
+        }
+        .nav-link {
+            transition: all 0.2s ease-in-out;
+        }
+        .nav-link.active {
+            background-color: #e0e7ff;
+            color: #3730a3;
+            font-weight: 500;
+        }
+        .content-section {
+            display: none;
+        }
+        .content-section.active {
+            display: block;
+        }
+        .array-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            min-height: 50px;
+            align-items: center;
+        }
+        .array-element {
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            font-weight: 500;
+            transition: all 0.3s ease-in-out;
+            border: 1px solid;
+        }
+        .btn-primary {
+            background-color: #4f46e5;
+            color: white;
+            transition: background-color 0.2s;
+        }
+        .btn-primary:hover {
+            background-color: #4338ca;
+        }
+        .btn-secondary {
+            background-color: #e5e7eb;
+            color: #374151;
+            transition: background-color 0.2s;
+        }
+        .btn-secondary:hover {
+            background-color: #d1d5db;
+        }
+        .viz-toggle-btn {
+            border: 1px solid #d1d5db;
+        }
+        .viz-toggle-btn.active {
+            background-color: #4f46e5;
+            color: white;
+            border-color: #4f46e5;
+        }
+        .bar-container {
+            display: flex;
+            align-items: flex-end;
+            height: 300px;
+            gap: 2px;
+            padding: 8px;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+        }
+        .bar {
+            flex-grow: 1;
+            background-color: #9ca3af;
+            transition: all 0.2s ease-in-out;
+            position: relative;
+        }
+        .bar.comparing { background-color: #f59e0b; }
+        .bar.merging { background-color: #6366f1; }
+        .bar.sorted { background-color: #22c55e; }
+    </style>
+</head>
+<body class="antialiased">
+
+    <div class="flex flex-col md:flex-row min-h-screen">
+        <aside class="w-full md:w-64 bg-white border-b md:border-b-0 md:border-r">
+            <div class="p-4">
+                <h1 class="text-xl font-bold text-indigo-800">Mergesort</h1>
+                <p class="text-sm text-gray-500">Explorador Interativo</p>
+            </div>
+            <nav id="navigation" class="flex flex-row md:flex-col p-2 space-x-1 md:space-x-0 md:space-y-1">
+                <a href="#introducao" class="nav-link active block px-4 py-2 rounded-lg text-gray-700 hover:bg-gray-100">Introdução</a>
+                <a href="#como-funciona" class="nav-link block px-4 py-2 rounded-lg text-gray-700 hover:bg-gray-100">Como Funciona</a>
+                <a href="#visualizacao" class="nav-link block px-4 py-2 rounded-lg text-gray-700 hover:bg-gray-100">Visualização</a>
+                <a href="#analise" class="nav-link block px-4 py-2 rounded-lg text-gray-700 hover:bg-gray-100">Análise</a>
+                <a href="#codigo" class="nav-link block px-4 py-2 rounded-lg text-gray-700 hover:bg-gray-100">Código</a>
+            </nav>
+        </aside>
+
+        <main class="flex-1 p-4 sm:p-6 md:p-8">
+            <div id="introducao" class="content-section active">
+                <h2 class="text-3xl font-bold mb-4 text-gray-800">A Arte de Dividir para Conquistar</h2>
+                <div class="space-y-6 text-lg text-gray-700 leading-relaxed">
+                    <div class="bg-white p-6 rounded-xl shadow-sm border">
+                        <h3 class="text-xl font-semibold mb-2 text-indigo-700">O que é o Mergesort?</h3>
+                        <p>É um algoritmo de ordenação <strong>eficiente</strong> e <strong>estável</strong>, baseado na célebre estratégia de ciência da computação: "<strong>Dividir para Conquistar</strong>" (Divide and Conquer). A sua lógica consiste em quebrar um problema complexo em subproblemas menores e mais fáceis de resolver, para depois combinar as suas soluções e resolver o problema original.</p>
+                    </div>
+                    <div class="bg-white p-6 rounded-xl shadow-sm border">
+                        <h3 class="text-xl font-semibold mb-2 text-indigo-700">Breve História</h3>
+                        <p>Inventado em <strong>1945</strong> pelo brilhante matemático e cientista da computação <strong>John von Neumann</strong>, o Mergesort é um dos algoritmos de ordenação fundamentais da história. Foi um dos primeiros a aplicar formalmente a abordagem de "dividir para conquistar", estabelecendo um paradigma que influenciou o desenvolvimento de inúmeros outros algoritmos.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div id="como-funciona" class="content-section">
+                <h2 class="text-3xl font-bold mb-4 text-gray-800">As Duas Fases do Mergesort</h2>
+                <p class="text-lg text-gray-600 mb-6">O algoritmo opera em um ciclo contínuo de duas fases distintas: a Divisão e a Conquista (ou Mesclagem). Esta seção explica o propósito de cada fase no processo de ordenação.</p>
+                <div class="grid md:grid-cols-2 gap-6">
+                    <div class="bg-white p-6 rounded-xl shadow-sm border">
+                        <h3 class="text-xl font-semibold mb-2 text-indigo-700">1. Fase de Divisão (Divide)</h3>
+                        <p class="text-gray-700">Nesta fase inicial, a lista de dados é dividida recursivamente ao meio. O processo se repete para cada sublista resultante, continuando até que todas as sublistas contenham apenas <strong>um único elemento</strong>. Por definição, uma lista com um só elemento já está ordenada.</p>
+                    </div>
+                    <div class="bg-white p-6 rounded-xl shadow-sm border">
+                        <h3 class="text-xl font-semibold mb-2 text-indigo-700">2. Fase de Conquista (Merge)</h3>
+                        <p class="text-gray-700">Uma vez que a lista foi completamente dividida, a fase de conquista começa. As sublistas, agora com um único elemento, são <strong>mescladas (merged)</strong> duas a duas, de forma ordenada. Este processo de mesclagem sobe pela árvore de recursão, combinando sublistas cada vez maiores até que reste apenas uma única lista final, completamente ordenada.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div id="visualizacao" class="content-section">
+                <h2 class="text-3xl font-bold mb-4 text-gray-800">Visualização Interativa</h2>
+                <p class="text-lg text-gray-600 mb-6">Insira números separados por vírgula ou use o exemplo padrão. Controle a execução passo a passo para ver como o algoritmo divide e mescla os dados para alcançar a ordenação.</p>
+                <div class="bg-white p-6 rounded-xl shadow-sm border space-y-4">
+                    <div>
+                        <label for="input-array" class="block text-sm font-medium text-gray-700 mb-1">Dados de Entrada</label>
+                        <input type="text" id="input-array" class="w-full p-2 border rounded-md" value="1, 90, 75, 42, 19, 30, 27, 43, 3, 9, 82, 10">
+                    </div>
+                    <div class="flex flex-wrap gap-2">
+                        <button id="start-btn" class="btn-primary px-4 py-2 rounded-md font-medium">Ordenar</button>
+                        <button id="reset-btn" class="btn-secondary px-4 py-2 rounded-md font-medium">Resetar</button>
+                    </div>
+                    <div class="flex flex-wrap gap-4 items-center">
+                        <div id="view-toggle" class="flex items-center">
+                            <button id="text-view-btn" class="viz-toggle-btn active px-3 py-1 rounded-l-md text-sm">Passo a Passo</button>
+                            <button id="bar-view-btn" class="viz-toggle-btn px-3 py-1 rounded-r-md text-sm">Gráfico de Barras</button>
+                        </div>
+                        <div class="flex flex-wrap gap-2 items-center">
+                            <button id="prev-step-btn" class="btn-secondary px-4 py-2 rounded-md font-medium" disabled>&#9664; Anterior</button>
+                            <button id="next-step-btn" class="btn-secondary px-4 py-2 rounded-md font-medium" disabled>Próximo &#9654;</button>
+                            <span id="step-counter" class="text-sm text-gray-500 ml-2">Passo 0 de 0</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-6 bg-white p-6 rounded-xl shadow-sm border min-h-[350px]">
+                    <h3 class="font-semibold text-lg mb-2">Estado Atual</h3>
+                    <p id="explanation-text" class="text-gray-600 mb-4 h-12">Clique em "Ordenar" para começar.</p>
+                    <div id="text-visualization-area" class="space-y-4"></div>
+                    <div id="bar-visualization-area" class="hidden">
+                        <div id="bar-container" class="bar-container"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="analise" class="content-section">
+                 <h2 class="text-3xl font-bold mb-4 text-gray-800">Análise de Performance</h2>
+                 <p class="text-lg text-gray-600 mb-6">Como todo algoritmo, o Mergesort possui pontos fortes e fracos que o tornam mais ou menos adequado dependendo do cenário de uso. Aqui comparamos suas vantagens e desvantagens.</p>
+                <div class="grid md:grid-cols-2 gap-6">
+                    <div class="bg-green-50 p-6 rounded-xl border border-green-200">
+                        <h3 class="text-xl font-semibold mb-3 text-green-800">Vantagens</h3>
+                        <ul class="space-y-3 text-green-900">
+                            <li class="flex items-start"><span class="mr-2 text-lg">✓</span><div><strong>Eficiência Garantida:</strong> Possui complexidade de tempo <strong>O(n log n)</strong> em todos os cenários (pior, médio e melhor caso), tornando-o previsível e muito rápido para grandes volumes de dados.</div></li>
+                            <li class="flex items-start"><span class="mr-2 text-lg">✓</span><div><strong>Estabilidade:</strong> Preserva a ordem relativa de elementos com valores iguais. Essencial em ordenações multi-nível (ex: por nome, depois por data).</div></li>
+                            <li class="flex items-start"><span class="mr-2 text-lg">✓</span><div><strong>Ideal para Dados Externos:</strong> Eficiente com dados que não cabem na memória RAM, pois processa os dados de forma sequencial.</div></li>
+                        </ul>
+                    </div>
+                    <div class="bg-red-50 p-6 rounded-xl border border-red-200">
+                        <h3 class="text-xl font-semibold mb-3 text-red-800">Desvantagens</h3>
+                        <ul class="space-y-3 text-red-900">
+                            <li class="flex items-start"><span class="mr-2 text-lg">✗</span><div><strong>Uso de Memória Auxiliar:</strong> Requer um espaço de memória adicional de <strong>O(n)</strong> para armazenar as sublistas durante a mesclagem, o que pode ser um problema em sistemas com memória restrita.</div></li>
+                            <li class="flex items-start"><span class="mr-2 text-lg">✗</span><div><strong>Lento para Listas Pequenas:</strong> A sobrecarga da recursão o torna menos eficiente que algoritmos mais simples (como Insertion Sort) para conjuntos de dados muito pequenos.</div></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div id="codigo" class="content-section">
+                <h2 class="text-3xl font-bold mb-4 text-gray-800">Método da Intercalação</h2>
+                <p class="text-lg text-gray-600 mb-6">Abaixo está uma representação em pseudocódigo do "Método da Intercalação", conforme as imagens fornecidas. Esta abordagem estrutura a lógica de declaração, entrada, processamento e ordenação de forma sequencial.</p>
+                <div class="bg-gray-800 rounded-xl shadow-lg relative">
+                    <button id="copy-code-btn" class="absolute top-4 right-4 bg-gray-700 hover:bg-gray-600 text-white text-sm font-medium py-1 px-3 rounded-md">Copiar</button>
+                    <pre class="p-6 text-white overflow-x-auto"><code id="code-block" class="language-pseudocode">
+ALGORITMO MERGE_SORT
+// 1 [Início]
+
+// 2 [Declaração de Constante]
+M <- 2
+N <- 2
+
+// 3 [Declaração de Variáveis]
+VET1 : vetor(M) de real
+VET2 : vetor(N) de real
+VET3 : vetor(M + N) de real
+I, J, I1, I2, I3, MENOR : inteiro
+AUX : real
+CHAVE : lógica
+
+// 4 [Inicialização das Variáveis]
+I1 <- 1
+I2 <- 1
+
+// 5 [Leitura dos Vetores]
+escreva ("Entre com os 2 elementos que irão compor o primeiro vetor: ")
+para I = 1 até M faça
+    leia (VET1(I))
+fim-para
+escreva ("Entre com os 2 elementos que irão compor o segundo vetor: ")
+para I = 1 até N faça
+    leia (VET2(I))
+fim-para
+
+// 6 [Processamento]
+para I3 = 1 até (M+N) faça
+    CHAVE <- VERDADEIRO
+    se I1 > M então
+        CHAVE <- FALSO
+    senão
+        se I2 > N então
+            CHAVE <- VERDADEIRO
+        senão
+            se VET1(I1) > VET2(I2) então
+                CHAVE <- FALSO
+            fim-se
+        fim-se
+    fim-se
+    se CHAVE = VERDADEIRO então
+        VET3(I3) <- VET1(I1)
+        I1 <- I1 + 1
+    senão
+        VET3(I3) <- VET2(I2)
+        I2 <- I2 + 1
+    fim-se
+fim-para
+
+// 7 [Realização da Ordenação]
+para I = 1 até ((N+M) - 1) faça
+    // 4.1 [Busca do Menor Valor]
+    MENOR <- I
+    para J = (I + 1) até (N + M) faça
+        se VET3(J) < VET3(MENOR) então
+            MENOR <- J
+        fim-se
+    fim-para
+    AUX <- VET3(I)
+    VET3(I) <- VET3(MENOR)
+    VET3(MENOR) <- AUX
+fim-para
+
+// 8 [Fim]
+                    </code></pre>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const navigationLinks = document.querySelectorAll('#navigation .nav-link');
+            const contentSections = document.querySelectorAll('.content-section');
+
+            const switchTab = (hash) => {
+                navigationLinks.forEach(link => {
+                    link.classList.toggle('active', link.hash === hash);
+                });
+                contentSections.forEach(section => {
+                    section.classList.toggle('active', `#${section.id}` === hash);
+                });
+            };
+            
+            navigationLinks.forEach(link => {
+                link.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const hash = e.currentTarget.hash;
+                    window.location.hash = hash;
+                    switchTab(hash);
+                });
+            });
+
+            if (window.location.hash) {
+                switchTab(window.location.hash);
+            } else {
+                switchTab('#introducao');
+            }
+            
+            const copyCodeBtn = document.getElementById('copy-code-btn');
+            const codeBlock = document.getElementById('code-block');
+            copyCodeBtn.addEventListener('click', () => {
+                const tempTextArea = document.createElement('textarea');
+                tempTextArea.value = codeBlock.textContent.trim();
+                document.body.appendChild(tempTextArea);
+                tempTextArea.select();
+                try {
+                    document.execCommand('copy');
+                    copyCodeBtn.textContent = 'Copiado!';
+                    setTimeout(() => { copyCodeBtn.textContent = 'Copiar'; }, 2000);
+                } catch (err) {
+                    console.error('Falha ao copiar o texto: ', err);
+                }
+                document.body.removeChild(tempTextArea);
+            });
+
+            const startBtn = document.getElementById('start-btn');
+            const resetBtn = document.getElementById('reset-btn');
+            const nextStepBtn = document.getElementById('next-step-btn');
+            const prevStepBtn = document.getElementById('prev-step-btn');
+            const inputArrayEl = document.getElementById('input-array');
+            const textVisualizationArea = document.getElementById('text-visualization-area');
+            const barVisualizationArea = document.getElementById('bar-visualization-area');
+            const barContainer = document.getElementById('bar-container');
+            const explanationText = document.getElementById('explanation-text');
+            const stepCounter = document.getElementById('step-counter');
+            const textViewBtn = document.getElementById('text-view-btn');
+            const barViewBtn = document.getElementById('bar-view-btn');
+
+            let textSteps = [];
+            let barSteps = [];
+            let currentStep = -1;
+            let vizMode = 'text';
+
+            const updateView = () => {
+                if (vizMode === 'text') {
+                    textVisualizationArea.style.display = 'block';
+                    barVisualizationArea.style.display = 'none';
+                    textViewBtn.classList.add('active');
+                    barViewBtn.classList.remove('active');
+                    renderTextStep();
+                } else {
+                    textVisualizationArea.style.display = 'none';
+                    barVisualizationArea.style.display = 'block';
+                    textViewBtn.classList.remove('active');
+                    barViewBtn.classList.add('active');
+                    renderBarStep();
+                }
+            };
+
+            textViewBtn.addEventListener('click', () => {
+                vizMode = 'text';
+                updateView();
+            });
+
+            barViewBtn.addEventListener('click', () => {
+                vizMode = 'bar';
+                updateView();
+            });
+
+            const generateElement = (value, state) => {
+                const el = document.createElement('div');
+                el.textContent = value;
+                el.classList.add('array-element');
+                if (state === 'sorted') {
+                    el.style.backgroundColor = '#dcfce7'; el.style.borderColor = '#4ade80'; el.style.color = '#166534';
+                } else if (state === 'merging') {
+                    el.style.backgroundColor = '#e0e7ff'; el.style.borderColor = '#818cf8'; el.style.color = '#3730a3';
+                } else {
+                    el.style.backgroundColor = '#f3f4f6'; el.style.borderColor = '#d1d5db'; el.style.color = '#374151';
+                }
+                return el;
+            };
+            
+            const renderTextStep = () => {
+                if (currentStep < 0 || currentStep >= textSteps.length) return;
+                
+                const step = textSteps[currentStep];
+                textVisualizationArea.innerHTML = '';
+                explanationText.textContent = step.explanation;
+
+                step.arrays.forEach(arrInfo => {
+                    const container = document.createElement('div');
+                    container.classList.add('array-container', 'p-2', 'bg-gray-50', 'rounded-lg');
+                    if (arrInfo.label) {
+                        const label = document.createElement('div');
+                        label.textContent = arrInfo.label;
+                        label.classList.add('font-mono', 'text-sm', 'mr-2', 'text-gray-500');
+                        container.appendChild(label);
+                    }
+                    arrInfo.arr.forEach(val => container.appendChild(generateElement(val, arrInfo.state)));
+                    textVisualizationArea.appendChild(container);
+                });
+
+                stepCounter.textContent = `Passo ${currentStep + 1} de ${textSteps.length}`;
+                prevStepBtn.disabled = currentStep === 0;
+                nextStepBtn.disabled = currentStep === textSteps.length - 1;
+            };
+
+            const renderBarStep = () => {
+                if (currentStep < 0 || currentStep >= barSteps.length) return;
+
+                const step = barSteps[currentStep];
+                barContainer.innerHTML = '';
+                explanationText.textContent = step.explanation;
+                const maxValue = Math.max(...step.array);
+
+                step.array.forEach((value, index) => {
+                    const bar = document.createElement('div');
+                    bar.classList.add('bar');
+                    const height = value > 0 ? (value / maxValue) * 100 : 0;
+                    bar.style.height = `${height}%`;
+                    
+                    if (step.highlights.comparing.includes(index)) bar.classList.add('comparing');
+                    if (step.highlights.merging.includes(index)) bar.classList.add('merging');
+                    if (step.highlights.sorted.includes(index)) bar.classList.add('sorted');
+                    
+                    barContainer.appendChild(bar);
+                });
+                
+                stepCounter.textContent = `Passo ${currentStep + 1} de ${barSteps.length}`;
+                prevStepBtn.disabled = currentStep === 0;
+                nextStepBtn.disabled = currentStep === barSteps.length - 1;
+            };
+
+            const renderCurrentStep = () => {
+                if (vizMode === 'text') {
+                    renderTextStep();
+                } else {
+                    renderBarStep();
+                }
+            };
+
+            const generateTextSteps = (arr) => {
+                textSteps = [];
+                const addStep = (arrays, explanation) => textSteps.push({ arrays: JSON.parse(JSON.stringify(arrays)), explanation });
+
+                function mergeSortRecursive(arr, path = 'Raiz') {
+                    if (arr.length <= 1) {
+                        addStep([{arr: arr, state: 'sorted', label: `${path}:`}], `Sublista [${arr.join(', ')}] já está ordenada (tamanho 1).`);
+                        return arr;
+                    }
+                    const mid = Math.floor(arr.length / 2);
+                    const left = arr.slice(0, mid);
+                    const right = arr.slice(mid);
+                    addStep([{arr: left, state: 'default', label: `${path} ᐊ`}, {arr: right, state: 'default', label: `${path} ᐅ`}], `Dividindo [${arr.join(', ')}] em duas metades.`);
+                    const sortedLeft = mergeSortRecursive(left, `${path} ᐊ`);
+                    const sortedRight = mergeSortRecursive(right, `${path} ᐅ`);
+                    return merge(sortedLeft, sortedRight, path);
+                }
+
+                function merge(left, right, path) {
+                    let resultArray = [], leftIndex = 0, rightIndex = 0;
+                    addStep([{arr: left, state: 'merging', label: `${path} ᐊ`}, {arr: right, state: 'merging', label: `${path} ᐅ`}], `Mesclando as sublistas [${left.join(', ')}] e [${right.join(', ')}].`);
+                    while (leftIndex < left.length && rightIndex < right.length) {
+                        if (left[leftIndex] < right[rightIndex]) {
+                            resultArray.push(left[leftIndex]); leftIndex++;
+                        } else {
+                            resultArray.push(right[rightIndex]); rightIndex++;
+                        }
+                    }
+                    const finalResult = resultArray.concat(left.slice(leftIndex)).concat(right.slice(rightIndex));
+                    addStep([{arr: finalResult, state: 'sorted', label: `${path}:`}], `Resultado da mesclagem: [${finalResult.join(', ')}].`);
+                    return finalResult;
+                }
+                
+                addStep([{arr: arr, state: 'default'}], 'Estado inicial da lista.');
+                const sortedArray = mergeSortRecursive([...arr]);
+                addStep([{arr: sortedArray, state: 'sorted'}], 'Ordenação completa!');
+            };
+
+            const generateBarSteps = (initialArray) => {
+                barSteps = [];
+                const addStep = (arr, highlights, explanation) => barSteps.push({ array: [...arr], highlights, explanation });
+
+                function mergeSortHelper(arr, start) {
+                    if (arr.length <= 1) return arr;
+                    const mid = Math.floor(arr.length / 2);
+                    const left = arr.slice(0, mid);
+                    const right = arr.slice(mid);
+
+                    const sortedLeft = mergeSortHelper(left, start);
+                    const sortedRight = mergeSortHelper(right, start + mid);
+                    
+                    return merge(sortedLeft, sortedRight, start, start + mid);
+                }
+
+                function merge(left, right, startLeft, startRight) {
+                    let result = [], i = 0, j = 0;
+                    
+                    while (i < left.length && j < right.length) {
+                        addStep(initialArray, { comparing: [startLeft + i, startRight + j], merging: [], sorted: [] }, `Comparando ${left[i]} e ${right[j]}.`);
+                        if (left[i] < right[j]) {
+                            result.push(left[i]); i++;
+                        } else {
+                            result.push(right[j]); j++;
+                        }
+                    }
+                    
+                    result = result.concat(left.slice(i)).concat(right.slice(j));
+                    
+                    const tempArray = [...initialArray];
+                    const sortedIndices = [];
+                    for(let k = 0; k < result.length; k++) {
+                        tempArray[startLeft + k] = result[k];
+                        sortedIndices.push(startLeft + k);
+                    }
+                    initialArray = [...tempArray];
+                    
+                    addStep(initialArray, { comparing: [], merging: sortedIndices, sorted: [] }, `Mesclando sub-array na posição correta.`);
+                    return result;
+                }
+
+                addStep(initialArray, { comparing: [], merging: [], sorted: [] }, 'Estado inicial.');
+                mergeSortHelper([...initialArray], 0);
+                addStep(initialArray, { comparing: [], merging: [], sorted: Array.from(Array(initialArray.length).keys()) }, 'Ordenação completa!');
+            };
+
+
+            startBtn.addEventListener('click', () => {
+                const input = inputArrayEl.value.split(',').map(s => parseInt(s.trim())).filter(n => !isNaN(n));
+                if (input.length === 0) {
+                    explanationText.textContent = 'Por favor, insira números válidos.';
+                    return;
+                }
+                
+                generateTextSteps([...input]);
+                generateBarSteps([...input]);
+                
+                currentStep = 0;
+                renderCurrentStep();
+                nextStepBtn.disabled = false;
+                resetBtn.disabled = false;
+            });
+
+            resetBtn.addEventListener('click', () => {
+                textSteps = [];
+                barSteps = [];
+                currentStep = -1;
+                textVisualizationArea.innerHTML = '';
+                barContainer.innerHTML = '';
+                explanationText.textContent = 'Clique em "Ordenar" para começar.';
+                stepCounter.textContent = 'Passo 0 de 0';
+                prevStepBtn.disabled = true;
+                nextStepBtn.disabled = true;
+                inputArrayEl.value = "38, 27, 43, 3, 9, 82, 10";
+                updateView();
+            });
+
+            nextStepBtn.addEventListener('click', () => {
+                const limit = vizMode === 'text' ? textSteps.length : barSteps.length;
+                if (currentStep < limit - 1) {
+                    currentStep++;
+                    renderCurrentStep();
+                }
+            });
+
+            prevStepBtn.addEventListener('click', () => {
+                if (currentStep > 0) {
+                    currentStep--;
+                    renderCurrentStep();
+                }
+            });
+        });
+    </script>
+</body>
+</html>
