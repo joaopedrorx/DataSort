@@ -101,8 +101,8 @@
             <nav id="navigation" class="flex flex-row md:flex-col p-2 space-x-1 md:space-x-0 md:space-y-1">
                 <a href="#introducao" class="nav-link active block px-4 py-2 rounded-lg text-gray-700 hover:bg-gray-100">Introdução</a>
                 <a href="#como-funciona" class="nav-link block px-4 py-2 rounded-lg text-gray-700 hover:bg-gray-100">Como Funciona</a>
+                <a href="#vantagens" class="nav-link block px-4 py-2 rounded-lg text-gray-700 hover:bg-gray-100">Vantagens e Desvantagens</a>
                 <a href="#visualizacao" class="nav-link block px-4 py-2 rounded-lg text-gray-700 hover:bg-gray-100">Visualização</a>
-                <a href="#analise" class="nav-link block px-4 py-2 rounded-lg text-gray-700 hover:bg-gray-100">Análise</a>
                 <a href="#codigo" class="nav-link block px-4 py-2 rounded-lg text-gray-700 hover:bg-gray-100">Código</a>
             </nav>
         </aside>
@@ -137,13 +137,35 @@
                 </div>
             </div>
 
+            <div id="vantagens" class="content-section">
+                 <h2 class="text-3xl font-bold mb-4 text-gray-800">Vantagens e Desvantagens</h2>
+                 <p class="text-lg text-gray-600 mb-6">Como todo algoritmo, o Mergesort possui pontos fortes e fracos que o tornam mais ou menos adequado dependendo do cenário de uso. Aqui comparamos seus prós e contras.</p>
+                <div class="grid md:grid-cols-2 gap-6">
+                    <div class="bg-green-50 p-6 rounded-xl border border-green-200">
+                        <h3 class="text-xl font-semibold mb-3 text-green-800">Vantagens</h3>
+                        <ul class="space-y-3 text-green-900">
+                            <li class="flex items-start"><span class="mr-2 text-lg">✓</span><div><strong>Eficiência Garantida:</strong> Possui complexidade de tempo <strong>O(n log n)</strong> em todos os cenários (pior, médio e melhor caso), tornando-o previsível e muito rápido para grandes volumes de dados.</div></li>
+                            <li class="flex items-start"><span class="mr-2 text-lg">✓</span><div><strong>Estabilidade:</strong> Preserva a ordem relativa de elementos com valores iguais. Essencial em ordenações multi-nível (ex: por nome, depois por data).</div></li>
+                            <li class="flex items-start"><span class="mr-2 text-lg">✓</span><div><strong>Ideal para Dados Externos:</strong> Eficiente com dados que não cabem na memória RAM, pois processa os dados de forma sequencial.</div></li>
+                        </ul>
+                    </div>
+                    <div class="bg-red-50 p-6 rounded-xl border border-red-200">
+                        <h3 class="text-xl font-semibold mb-3 text-red-800">Desvantagens</h3>
+                        <ul class="space-y-3 text-red-900">
+                            <li class="flex items-start"><span class="mr-2 text-lg">✗</span><div><strong>Uso de Memória Auxiliar:</strong> Requer um espaço de memória adicional de <strong>O(n)</strong> para armazenar as sublistas durante a mesclagem, o que pode ser um problema em sistemas com memória restrita.</div></li>
+                            <li class="flex items-start"><span class="mr-2 text-lg">✗</span><div><strong>Lento para Listas Pequenas:</strong> A sobrecarga da recursão o torna menos eficiente que algoritmos mais simples (como Insertion Sort) para conjuntos de dados muito pequenos.</div></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
             <div id="visualizacao" class="content-section">
                 <h2 class="text-3xl font-bold mb-4 text-gray-800">Visualização Interativa</h2>
                 <p class="text-lg text-gray-600 mb-6">Insira números separados por vírgula ou use o exemplo padrão. Controle a execução passo a passo para ver como o algoritmo divide e mescla os dados para alcançar a ordenação.</p>
                 <div class="bg-white p-6 rounded-xl shadow-sm border space-y-4">
                     <div>
                         <label for="input-array" class="block text-sm font-medium text-gray-700 mb-1">Dados de Entrada</label>
-                        <input type="text" id="input-array" class="w-full p-2 border rounded-md" value="1, 90, 75, 42, 19, 30, 27, 43, 3, 9, 82, 10">
+                        <input type="text" id="input-array" class="w-full p-2 border rounded-md" value="38, 27, 43, 3, 9, 82, 10">
                     </div>
                     <div class="flex flex-wrap gap-2">
                         <button id="start-btn" class="btn-primary px-4 py-2 rounded-md font-medium">Ordenar</button>
@@ -168,28 +190,6 @@
                     <div id="text-visualization-area" class="space-y-4"></div>
                     <div id="bar-visualization-area" class="hidden">
                         <div id="bar-container" class="bar-container"></div>
-                    </div>
-                </div>
-            </div>
-
-            <div id="analise" class="content-section">
-                 <h2 class="text-3xl font-bold mb-4 text-gray-800">Análise de Performance</h2>
-                 <p class="text-lg text-gray-600 mb-6">Como todo algoritmo, o Mergesort possui pontos fortes e fracos que o tornam mais ou menos adequado dependendo do cenário de uso. Aqui comparamos suas vantagens e desvantagens.</p>
-                <div class="grid md:grid-cols-2 gap-6">
-                    <div class="bg-green-50 p-6 rounded-xl border border-green-200">
-                        <h3 class="text-xl font-semibold mb-3 text-green-800">Vantagens</h3>
-                        <ul class="space-y-3 text-green-900">
-                            <li class="flex items-start"><span class="mr-2 text-lg">✓</span><div><strong>Eficiência Garantida:</strong> Possui complexidade de tempo <strong>O(n log n)</strong> em todos os cenários (pior, médio e melhor caso), tornando-o previsível e muito rápido para grandes volumes de dados.</div></li>
-                            <li class="flex items-start"><span class="mr-2 text-lg">✓</span><div><strong>Estabilidade:</strong> Preserva a ordem relativa de elementos com valores iguais. Essencial em ordenações multi-nível (ex: por nome, depois por data).</div></li>
-                            <li class="flex items-start"><span class="mr-2 text-lg">✓</span><div><strong>Ideal para Dados Externos:</strong> Eficiente com dados que não cabem na memória RAM, pois processa os dados de forma sequencial.</div></li>
-                        </ul>
-                    </div>
-                    <div class="bg-red-50 p-6 rounded-xl border border-red-200">
-                        <h3 class="text-xl font-semibold mb-3 text-red-800">Desvantagens</h3>
-                        <ul class="space-y-3 text-red-900">
-                            <li class="flex items-start"><span class="mr-2 text-lg">✗</span><div><strong>Uso de Memória Auxiliar:</strong> Requer um espaço de memória adicional de <strong>O(n)</strong> para armazenar as sublistas durante a mesclagem, o que pode ser um problema em sistemas com memória restrita.</div></li>
-                            <li class="flex items-start"><span class="mr-2 text-lg">✗</span><div><strong>Lento para Listas Pequenas:</strong> A sobrecarga da recursão o torna menos eficiente que algoritmos mais simples (como Insertion Sort) para conjuntos de dados muito pequenos.</div></li>
-                        </ul>
                     </div>
                 </div>
             </div>
